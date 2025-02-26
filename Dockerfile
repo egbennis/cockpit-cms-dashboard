@@ -23,6 +23,18 @@ COPY . /var/www/html/
 RUN mkdir -p ./storage/cache ./storage/tmp ./storage/uploads ./storage/data ./storage/database \
     && chmod -R 0777 ./storage
 
+# Set correct permissions
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html
+
+# Configure Apache
+RUN echo '<Directory /var/www/html>\n\
+    Options Indexes FollowSymLinks\n\
+    AllowOverride All\n\
+    Require all granted\n\
+</Directory>' > /etc/apache2/conf-available/cockpit.conf \
+    && a2enconf cockpit
+
 # Configure Apache for dynamic port
 RUN sed -i 's/80/${PORT}/g' /etc/apache2/sites-available/000-default.conf /etc/apache2/ports.conf
 
